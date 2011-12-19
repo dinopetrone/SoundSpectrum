@@ -1,0 +1,151 @@
+
+// example: @include boxshadow(rgba(0,0,0, .35), 1px, 1px, 5px);
+// example: @include boxshadow(rgba(0,0,0, .35), 1px, 1px, 5px, inset);
+@mixin boxshadow($color:#000, $x:0, $y:0, $size:2px, $inset:false) {
+    $full: $x $y $size $color;
+    @if $inset == 'inset'{
+        $full: $full $inset;
+    }
+    -moz-box-shadow:    $full;
+    -webkit-box-shadow: $full;
+    -ms-box-shadow:     $full;
+    -o-box-shadow:      $full;
+    box-shadow:         $full;
+}
+// example: @include boxshadowmulti((1px 1px 1px 1px rgba(0,0,0,.5) inset, 1px 1px 1px 1px rgba(0,0,0,.5) inset));
+// !important: entire shadow value must be passed in surrounded by ()
+// !important: do not seperate shadow settings with commas as in @mixin boxshadow, follow normal CSS syntax
+@mixin boxshadowmulti($shadows){
+    -moz-box-shadow:    $shadows;
+    -webkit-box-shadow: $shadows;
+    -ms-box-shadow:     $shadows;
+    -o-box-shadow:      $shadows;
+    box-shadow:         $shadows;
+    
+}
+
+@mixin clearboxshadow(){
+    -moz-box-shadow:    none;
+    -webkit-box-shadow: none;
+    -ms-box-shadow:     none;
+    -o-box-shadow:      none;
+    box-shadow:         none;
+}
+
+// example: @include lineargradient(#000, #fff);
+@mixin lineargradient($color1, $color2)
+{
+    background:       $color1;
+    @if $color2
+    {
+        background-image: -webkit-gradient(linear, left top, left bottom, from($color1), to($color2));
+        background-image: -moz-linear-gradient(top, $color1, $color2);
+    }
+}
+// example: @include lineargradient(#000, #fff, #222); 
+// use this one when the first color of the linear gradient isn't what you need for IE
+@mixin lineargradient2($color1, $color2, $default)
+{
+    background:       $default;
+    @if $color2
+    {
+        background-image: -webkit-gradient(linear, left top, left bottom, from($color1), to($color2));
+        background-image: -moz-linear-gradient(top, $color1, $color2);
+    }
+}
+
+// example: @include radialgradient(#fff, #000, left);
+@mixin radialgradient($color1, $color2, $anchor:left)
+{
+    background: $color1;
+    background-image: -moz-radial-gradient($anchor 45deg, circle closest-corner, $color1 10%, $color2 100%); 
+    background-image: -webkit-gradient(radial, $anchor center, 10, $anchor center, 150, from($color1), to($color2));
+}
+
+// example: @include onecorner(5px, top, right);
+@mixin onecorner($radius, $hside, $vside)
+{
+    -moz-border-radius-#{$hside}#{$vside}:      $radius;
+    -webkit-border-#{$hside}-#{$vside}-radius:  $radius;
+    -ms-border-#{$hside}-#{$vside}-radius:      $radius;
+    -o-border-#{$hside}-#{$vside}-radius:       $radius;
+    border-#{$hside}-#{$vside}-radius:          $radius;
+}
+
+// example: @include twocorner(5px, top, right, top, left);
+@mixin twocorner($radius, $hside, $vside, $hside2, $vside2)
+{
+    // corner 1
+    -moz-border-radius-#{$hside}#{$vside}:      $radius;
+    -webkit-border-#{$hside}-#{$vside}-radius:  $radius;
+    -ms-border-#{$hside}-#{$vside}-radius:      $radius;
+    -o-border-#{$hside}-#{$vside}-radius:       $radius;
+    -khtml-border-#{$hside}-#{$vside}-radius:   $radius;
+    border-#{$hside}-#{$vside}-radius:          $radius;
+    // corner 2
+    -moz-border-radius-#{$hside2}#{$vside2}:      $radius;
+    -webkit-border-#{$hside2}-#{$vside2}-radius:  $radius;
+    -ms-border-#{$hside2}-#{$vside2}-radius:      $radius;
+    -o-border-#{$hside2}-#{$vside2}-radius:       $radius;
+    -khtml-border-#{$hside2}-#{$vside2}-radius:   $radius;
+    border-#{$hside2}-#{$vside2}-radius:          $radius;
+}
+
+// example: @include corner(5px);
+@mixin corner($radius:5px)
+{   
+    -webkit-border-radius:  $radius;
+    -moz-border-radius:     $radius;
+    -o-border-radius:       $radius;
+    -ms-border-radius:      $radius;
+    -khtml-border-radius:   $radius;
+    border-radius:          $radius;
+}
+
+@mixin transition($prop:all, $secs:.15s, $easing:ease-in-out)
+{
+    -webkit-transition: $prop $secs $easing;
+    -moz-transition:    $prop $secs $easing; 
+    -o-transition:      $prop $secs $easing;
+    transition:         $prop $secs $easing;
+}
+
+@mixin backgroundsize($width, $height)
+{
+    $full: $width $width;
+    @if $height
+    {
+        $full: $width $height;
+    }
+    
+    -moz-background-size:       $full;
+    -o-background-size:         $full;
+    -webkit-background-size:    $full;
+}
+
+@mixin borderimage($url, $offset_top:5, $offset_right:5, $offset_bottom:5, $offset_left: 5, $scaling:stretch)
+{
+    -moz-border-image: url($url) $offset_top $offset_right $offset_bottom $offset_left $scaling; 
+    -webkit-border-image: url($url) $offset_top $offset_right $offset_bottom $offset_left $scaling;
+}
+
+@mixin rotate($val)
+{
+    -webkit-transform:  rotate($val);
+    -moz-transform:     rotate($val);
+    -o-transform:       rotate($val);
+}
+
+// example: fpokitten(10, 10);
+@mixin fpokitten($w, $h){
+    width:#{$w}px;
+    height:#{$h}px;
+    background: url('http://www.placekitten.com/#{$w}/#{$h}') no-repeat 0 0;
+}
+
+// example: fpoplacehold(10,10, e91180, ffffff)
+@mixin fpoplacehold($w, $h, $bg:e91180, $txt:ffffff){
+    width: $w + 'px';
+    height:$h + 'px';
+    background: url('http://placehold.it/#{$w}x#{$h}/#{$bg}/#{$txt}') no-repeat 0 0;
+}

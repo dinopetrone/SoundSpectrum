@@ -1,0 +1,157 @@
+PROJECT_DIR = "."
+JS_SRC   = "resources/js"
+JS_LIB_SRC = "resources/js/lib"
+JS_DEFAULT_MODULE_NAME = "project-blam.min.js"
+CSS_SRC  = "resources/css/src"
+CSS_OUT  = "resources/css"
+IMG_SRC  = "resources/img"
+VIEW_SRC = ""
+VIEW_EXT = [".php", ".html"]
+TMP_DIR  = "../build"
+TOOLS_DIR = "../tools"
+
+################ DO NOT TOUCH BEYOND THIS POINT ################
+
+CSS_FILES = FileList["#{PROJECT_DIR}/#{CSS_SRC}/*.scss"].exclude(/_.+\.scss$/) 
+VIEW_FILES = []
+VIEW_EXT.each do |f|
+    VIEW_FILES.concat(FileList["#{PROJECT_DIR}/#{VIEW_SRC}/**/*#{f}"])
+end
+
+namespace :project do
+
+    directory "#{PROJECT_DIR}/#{CSS_OUT}"
+    directory "#{PROJECT_DIR}/#{CSS_SRC}"
+    directory "#{PROJECT_DIR}/#{VIEW_SRC}"
+    directory "#{PROJECT_DIR}/#{JS_LIB_SRC}"
+    directory "#{PROJECT_DIR}/#{IMG_SRC}"
+    
+    task :init => ["project:dirs"] do
+    end
+
+    task :dirs => ["#{PROJECT_DIR}/#{CSS_OUT}", 
+                   "#{PROJECT_DIR}/#{CSS_SRC}",
+                   "#{PROJECT_DIR}/#{VIEW_SRC}",
+                   "#{PROJECT_DIR}/#{JS_LIB_SRC}",
+                   "#{PROJECT_DIR}/#{IMG_SRC}"] do
+    end
+
+end
+
+namespace :fetch do
+    desc 'Fetch libraries'
+    
+    task :jquery => ["project:init"] do
+        puts 'Fetching jQuery...'
+        files = {'jquery.min.js' => 'http://code.jquery.com/jquery-latest.min.js' }
+        
+        require 'open-uri'
+        files.each do |local_path, remote_path|
+            f = File.open "#{JS_LIB_SRC}/#{local_path}", 'w' do |f|
+                f.write open(remote_path).read
+            end
+        end
+    end
+
+    task :mustache => ["project:init"] do
+        puts 'Fetching Mustache...'
+        files = {'mustache.js' => 'https://raw.github.com/janl/mustache.js/0.3.0/mustache.js' }
+        require 'open-uri'
+        files.each do |local_path, remote_path|
+            f = File.open "#{JS_LIB_SRC}/#{local_path}", 'w' do |f| 
+                f.write open(remote_path).read 
+            end
+        end
+
+        puts 'Minifying Mustache...'
+        `java -jar #{TOOLS_DIR}/scriptyhc.jar --minify #{PROJECT_DIR}/#{JS_LIB_SRC}/mustache.js`
+        File.delete("#{PROJECT_DIR}/#{JS_LIB_SRC}/mustache.js")
+    end
+end
+
+namespace :css do
+    desc 'CSS Related actions'
+
+    
+    task :watch do
+        `sass --style extended --watch #{PROJECT_DIR}/#{CSS_SRC}:#{PROJECT_DIR}/#{CSS_OUT}`
+    end
+
+    task :compile do
+        require 'pathname'
+        CSS_FILES.each do |name|
+            puts "[Compiling] #{name}"
+            base = Pathname.new(name).basename.sub(".scss", ".css")
+            `sass --style compressed #{name} #{PROJECT_DIR}/#{CSS_OUT}/#{base}`
+        end
+    end
+end
+
+namespace :build do
+    desc "Build project tasks"
+
+    directory "#{TMP_DIR}"
+    directory "#{TMP_DIR}/#{CSS_OUT}"
+    directory "#{TMP_DIR}/#{VIEW_SRC}"
+    directory "#{TMP_DIR}/#{IMG_SRC}"
+    directory "#{TMP_DIR}/#{JS_SRC}"
+    directory "#{TMP_DIR}/#{JS_LIB_SRC}"
+
+    task :dist => ["build:distclean", "build:install_dirs", "css:compile", "build:copy_css", "build:copy_images", "build:copy_views", "build:copy_js_libs", "build:compress_js"] do
+    end
+
+    task :distclean do
+        begin
+            File.delete(TMP_DIR)
+        rescue Exception => e
+            #no op
+        end
+    end
+
+    task :install_dirs =>["#{TMP_DIR}", 
+                          "#{TMP_DIR}/#{CSS_OUT}",
+                          "#{TMP_DIR}/#{VIEW_SRC}",
+                          "#{TMP_DIR}/#{IMG_SRC}",
+                          "#{TMP_DIR}/#{JS_SRC}",
+                          "#{TMP_DIR}/#{JS_LIB_SRC}"] do
+    end
+
+    task :copy_css do
+        require 'pathname'
+        puts "[Copying] CSS"
+        CSS_FILES.each do |f|
+            target = base = Pathname.new(f).basename.sub(".scss", ".css")
+            cp "#{PROJECT_DIR}/#{CSS_OUT}/#{target}", "#{TMP_DIR}/#{CSS_OUT}/#{target}"
+        end
+    end
+
+    task :copy_views do
+        require 'pathname'
+
+        VIEW_FILES.each do |f|
+            obj = Pathname.new(f)
+            mkdir_p "#{TMP_DIR}/#{obj.dirname}"
+            cp f, "#{TMP_DIR}/#{obj.dirname}/#{obj.basename}"
+        end
+    end
+
+    task :copy_js_libs do
+        puts "[Copying] JavaScript Libraries"
+        cp_r "#{PROJECT_DIR}/#{JS_LIB_SRC}/.", "#{TMP_DIR}/#{JS_LIB_SRC}"
+    end
+
+    task :copy_images do
+        puts "[Copying] Images"
+        cp_r "#{PROJECT_DIR}/#{IMG_SRC}/.", "#{TMP_DIR}/#{IMG_SRC}"
+    end
+
+    task :compress_js do
+        puts "[Compresing JavaScript]"
+        `java -jar #{TOOLS_DIR}/scriptyhc.jar --compiler_base_path #{TOOLS_DIR}/compilers --output_prefix #{TMP_DIR} --js_output_module_path #{JS_SRC} --js_default_module_name #{JS_DEFAULT_MODULE_NAME} #{VIEW_FILES.join(" ")}`
+    end
+end
+
+rule '.css' => [proc { |tn| CSS_SRC + "/" + tn.ext(".scss") } ] do |r|
+    puts "[Compiling] #{r.source}"
+    `sass --style compressed #{r.source} #{PROJECT_DIR}/#{CSS_OUT}/#{r.name}`
+end

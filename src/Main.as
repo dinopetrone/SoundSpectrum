@@ -75,7 +75,7 @@
 			var ba:ByteArray = new ByteArray();
 			SoundMixer.computeSpectrum( ba );
 			//trace(_channel.position);
-			var pos:int = _channel.position;
+			var pos:int = Math.round(_channel.position /100)*100;
 			var tempArr:Array = [];
 			for ( var i:uint = 0; i < 256; i++ )
 			{

@@ -1,0 +1,27 @@
+.circle {
+	display: block;
+	display: block;
+	width: 20px;
+	height: 20px;
+	background: #333;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	float:left;
+}
+
+
+
+body{
+	
+}
+.container{
+	width:1000px;
+	margin:600px auto;
+	-webkit-perspective: 1000;
+	-webkit-transform-style: preserve-3d;
+	-webkit-transform: rotate3d(1, 0, 0, -30deg);
+}
+
+#go{
+	margin: 0 auto;
+}

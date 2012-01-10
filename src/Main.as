@@ -84,6 +84,7 @@
 				ba.readFloat();
 				ba.readFloat();
 				ba.readFloat();
+				num = Math.floor(num*1000)/1000;
 				tempArr.push(num);
 			}
 			_output[pos] = tempArr;

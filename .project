@@ -24,5 +24,6 @@
 	<natures>
 		<nature>com.aptana.editor.php.phpNature</nature>
 		<nature>com.powerflasher.fdt.core.FlashNature</nature>
+		<nature>com.aptana.ruby.core.rubynature</nature>
 	</natures>
 </projectDescription>

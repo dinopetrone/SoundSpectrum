@@ -14,7 +14,6 @@
 				echo '<div class="circle" id="dot'.$i.'"></div>'; 
 			}
 		?>
-		
 		</div>
 	</body>
 </html>

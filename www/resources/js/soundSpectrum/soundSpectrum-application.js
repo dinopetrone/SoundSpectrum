@@ -68,7 +68,7 @@ SounSpectrum.Application = function() {
 
 	function animateDisplay(spectrum) {
 		$('.circle').each(function(index) {
-			var initScale = spectrum[index * 5];
+			var initScale = spectrum[index];
 			var scale = initScale;
 			scale = Math.floor(scale * 2000);
 			scale = -Math.max(0,scale);

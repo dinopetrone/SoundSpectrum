@@ -10,10 +10,6 @@
 }
 
 
-
-body{
-	
-}
 .container{
 	width:1000px;
 	margin:600px auto;
@@ -23,5 +19,8 @@ body{
 }
 
 #go{
-	margin: 0 auto;
+	display:block;
+	width:120px;
+	margin:200px auto;
+	font-size:30px;
 }

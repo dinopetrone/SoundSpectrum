@@ -77,9 +77,13 @@
 			//trace(_channel.position);
 			var pos:int = Math.round(_channel.position /100)*100;
 			var tempArr:Array = [];
-			for ( var i:uint = 0; i < 256; i++ )
+			for ( var i:uint = 0; i < 50; i++ )
 			{
 				var num:Number = ba.readFloat();
+				ba.readFloat();
+				ba.readFloat();
+				ba.readFloat();
+				ba.readFloat();
 				tempArr.push(num);
 			}
 			_output[pos] = tempArr;
